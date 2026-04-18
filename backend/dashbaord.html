@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MediAlert Live Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: #ffffff;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h2 {
+      color: #00ffcc;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      color: #00ffcc;
+      margin-top: 30px;
+    }
+
+    .box {
+      background: #1c1c1c;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #2d2d2d;
+    }
+
+    .label {
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .value {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 4px;
+      word-wrap: break-word;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>📡 MediAlert Real-Time Dashboard</h2>
+
+<div class="box">
+  <div class="label">Timestamp</div>
+  <div class="value" id="timestamp">-</div>
+</div>
+
+<div class="grid">
+
+  <div class="box">
+    <div class="label">Heart Rate</div>
+    <div class="value" id="hr">-</div>
+  </div>
+
+  <div class="box">
+    <div class="label">HRV</div>
+    <div class="value" id="hrv">-</div>
+  </div>
+
+  <div class="box">
+    <div class="label">Steps</div>
+    <div class="value" id="steps">-</div>
+  </div>
+
+  <div class="box">
+    <div class="label">Micro Tremor</div>
+    <div class="value" id="micro">-</div>
+  </div>
+
+  <div class="box">
+    <div class="label">Blood Flow Index</div>
+    <div class="value" id="blood">-</div>
+  </div>
+
+  <div class="box">
+    <div class="label">Sleep State</div>
+    <div class="value" id="sleep">-</div>
+  </div>
+
+  <div class="box">
+    <div class="label">SpO2</div>
+    <div class="value" id="spo2">-</div>
+  </div>
+
+  <div class="box">
+    <div class="label">Temperature</div>
+    <div class="value" id="temp">-</div>
+  </div>
+
+</div>
+
+<h3>Raw Sensor Data</h3>
+
+<div class="box">
+  <div class="label">IR Signal</div>
+  <div class="value" id="ir">-</div>
+</div>
+
+<div class="box">
+  <div class="label">Red Signal</div>
+  <div class="value" id="red">-</div>
+</div>
+
+<div class="box">
+  <div class="label">Accel Series</div>
+  <div class="value" id="accel">-</div>
+</div>
+
+<div class="box">
+  <div class="label">Gyro Series</div>
+  <div class="value" id="gyro">-</div>
+</div>
+
+<script>
+const API_URL = "http://10.13.118.120:8000/dashboard/latest";
+
+async function fetchData() {
+  try {
+    const res = await fetch(API_URL);
+    const d = await res.json();
+
+    console.log("LIVE:", d);
+
+    document.getElementById("timestamp").innerText = d.timestamp || "-";
+    document.getElementById("hr").innerText = d.heart_rate || "-";
+    document.getElementById("hrv").innerText = d.hrv || "-";
+    document.getElementById("steps").innerText = d.steps || "-";
+    document.getElementById("micro").innerText = d.micro_tremor || "-";
+
+    document.getElementById("blood").innerText =
+      d.blood_flow?.blood_flow_index ?? "-";
+
+    document.getElementById("sleep").innerText = d.sleep_state || "-";
+    document.getElementById("spo2").innerText = d.spo2 || "-";
+    document.getElementById("temp").innerText = d.temperature || "-";
+
+    document.getElementById("ir").innerText =
+      JSON.stringify(d.ir_signal?.slice(-5)) || "-";
+
+    document.getElementById("red").innerText =
+      JSON.stringify(d.red_signal?.slice(-5)) || "-";
+
+    document.getElementById("accel").innerText =
+      JSON.stringify(d.accel_series?.slice(-3)) || "-";
+
+    document.getElementById("gyro").innerText =
+      JSON.stringify(d.gyro_series?.slice(-3)) || "-";
+
+  } catch (err) {
+    console.log("ERROR:", err);
+  }
+}
+
+setInterval(fetchData, 1000);
+fetchData();
+</script>
+
+</body>
+</html>
