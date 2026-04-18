@@ -1,0 +1,122 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI';
+  background: linear-gradient(135deg, #0b132b, #1c2541, #3a506b);
+  color: #e0e7ff;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 25px;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #00f5d4, #5f27cd, #ff6b6b);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* PATIENT */
+.patient {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #c7d2fe;
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  padding: 18px;
+}
+
+.card {
+  padding: 22px;
+  border-radius: 20px;
+  text-align: center;
+  transition: 0.3s;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.05);
+}
+
+.heart { background: linear-gradient(135deg, #ff6b6b, #ff9f9f); }
+.spo2 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.temp { background: linear-gradient(135deg, #f7971e, #ffd200); }
+.steps { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+.card h2 {
+  font-size: 28px;
+}
+
+/* STATUS */
+.status {
+  margin: 18px;
+  padding: 15px;
+  text-align: center;
+  border-radius: 14px;
+  font-weight: bold;
+}
+
+.normal {
+  background: linear-gradient(135deg, #56ab2f, #a8e063);
+}
+
+.alert {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.6; }
+}
+
+/* BUTTON */
+.buttons {
+  text-align: center;
+  margin: 15px;
+}
+
+button {
+  padding: 14px 35px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 8px 25px rgba(102,126,234,0.6);
+}
+
+button:hover {
+  transform: translateY(-3px) scale(1.08);
+}
+
+button:active {
+  transform: scale(0.92);
+}
+
+/* GRAPHS */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  padding: 18px;
+}
+
+.chart {
+  background: white;
+  border-radius: 18px;
+  padding: 15px;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  .header { font-size: 24px; }
+}
