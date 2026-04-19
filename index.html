@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Health Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div class="header">✨ Smart Health Dashboard</div>
+
+<div class="patient">
+  Ramesh Jagtap | Age: 72 | ID: P1023
+</div>
+
+<div class="cards">
+  <div class="card heart">❤️ <span>Heart Rate</span><h2 id="hr">--</h2></div>
+  <div class="card spo2">🫁 <span>SpO₂</span><h2 id="spo2">--</h2></div>
+  <div class="card temp">🌡 <span>Temperature</span><h2 id="temp">--</h2></div>
+  <div class="card steps">👣 <span>Steps</span><h2 id="steps">--</h2></div>
+</div>
+
+<div id="statusBar" class="status normal">💚 HEALTHY</div>
+
+<div class="buttons">
+  <button id="alertBtn" onclick="resolveAlert()">Resolve Alert</button>
+</div>
+
+<div class="grid">
+  <div class="chart"><canvas id="hrChart"></canvas></div>
+  <div class="chart"><canvas id="spo2Chart"></canvas></div>
+  <div class="chart"><canvas id="tempChart"></canvas></div>
+  <div class="chart"><canvas id="stepsChart"></canvas></div>
+</div>
+
+<script src="script.js" defer></script>
+
+</body>
+</html>
