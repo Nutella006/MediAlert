@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediAlert Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+  --cyan:#00f3ff;
+  --pink:#ff00ff;
+  --red:#ff3131;
+  --bg:#05070b;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:var(--bg);
+  color:white;
+  font-family:'Courier New', monospace;
+  padding:20px;
+}
+
+h1{
+  text-align:center;
+  color:var(--cyan);
+  margin-bottom:30px;
+}
+
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(380px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:#0b0d14;
+  border:1px solid rgba(0,243,255,0.25);
+  border-radius:18px;
+  padding:22px;
+}
+
+.card-title{
+  color:var(--cyan);
+  margin-bottom:18px;
+  font-size:18px;
+}
+
+.stat{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:14px;
+  font-size:18px;
+}
+
+.chart-box{
+  height:260px;
+  margin-top:15px;
+}
+
+.temp-bar-wrap{
+  background:#1a1a1a;
+  height:18px;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:15px;
+}
+
+.temp-bar{
+  height:100%;
+  width:50%;
+  background:linear-gradient(to right,#00f3ff,#ffee00,#ff3131);
+}
+
+.alert-box{
+  line-height:1.8;
+  font-size:16px;
+}
+
+.sos-btn{
+  width:100%;
+  padding:16px;
+  background:var(--red);
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.sos-btn:hover{
+  opacity:0.9;
+}
+
+#sosStatus{
+  margin-top:15px;
+  font-size:16px;
+  color:var(--cyan);
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<h1>MEDIALERT // SMART HEALTH</h1>
+
+<div class="dashboard">
+
+<!-- HEART -->
+<div class="card">
+<div class="card-title">Heart Health ❤️</div>
+
+<div class="stat"><span>HR</span><span id="hr">-</span></div>
+<div class="stat"><span>HRV</span><span id="hrv">-</span></div>
+<div class="stat"><span>SpO2</span><span id="spo2">-</span></div>
+<div class="stat"><span>Blood Flow</span><span id="bloodFlow">-</span></div>
+
+<div class="chart-box">
+<canvas id="pulseChart"></canvas>
+</div>
+</div>
+
+<!-- DAILY ACTIVITY -->
+<div class="card">
+<div class="card-title">Daily Activity 🚶</div>
+
+<div class="stat"><span>Steps</span><span id="steps">-</span></div>
+
+<div class="chart-box">
+<canvas id="stepsChart"></canvas>
+</div>
+</div>
+
+<!-- NEURAL -->
+<div class="card">
+<div class="card-title">Neural Health 🧠</div>
+
+<div class="stat"><span>Temperature</span><span id="temp">-</span></div>
+<div class="stat"><span>Micro Tremor</span><span id="microTremor">-</span></div>
+
+<div class="temp-bar-wrap">
+<div class="temp-bar" id="tempBar"></div>
+</div>
+</div>
+
+<!-- WELLNESS -->
+<div class="card">
+<div class="card-title">Energy & Wellness ⚡</div>
+
+<div class="stat"><span>Calories</span><span id="calories">-</span></div>
+<div class="stat"><span>Hydration</span><span id="hydration">-</span></div>
+<div class="stat"><span>Stress</span><span id="stress">-</span></div>
+</div>
+
+<!-- ALERTS -->
+<div class="card">
+<div class="card-title">Alerts 🚨</div>
+
+<div class="alert-box" id="alertsBox">
+System Monitoring...
+</div>
+</div>
+
+<!-- SOS -->
+<div class="card">
+<div class="card-title">Emergency SOS 🆘</div>
+
+<button class="sos-btn" onclick="sendSOS()">
+SEND SOS
+</button>
+
+<div id="sosStatus">
+Ready
+</div>
+</div>
+
+</div>
+
+<script>
+
+const API_URL = "http://10.13.118.120:8000/dashboard/latest";
+const ALERT_URL = "http://10.13.118.120:8000/alert";
+
+/* PULSE GRAPH */
+const pulseChart = new Chart(
+document.getElementById("pulseChart"),
+{
+type:"line",
+data:{
+labels:Array(20).fill(""),
+datasets:[{
+label:"Pulse",
+data:[],
+borderColor:"#ff3131",
+backgroundColor:"rgba(255,49,49,0.1)",
+fill:true,
+tension:0.4,
+pointRadius:0
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+}
+);
+
+/* STEPS GRAPH */
+const stepsChart = new Chart(
+document.getElementById("stepsChart"),
+{
+type:"line",
+data:{
+labels:[],
+datasets:[{
+label:"Steps Activity",
+data:[],
+borderColor:"#00f3ff",
+backgroundColor:"rgba(0,243,255,0.1)",
+fill:true,
+tension:0.4,
+pointRadius:2
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+}
+);
+
+/* SOS BUTTON */
+async function sendSOS(){
+const box = document.getElementById("sosStatus");
+
+try{
+box.innerText = "Sending SOS...";
+
+const res = await fetch(ALERT_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+sos:1
+})
+});
+
+if(res.ok){
+box.innerText = "🚨 SOS SENT SUCCESSFULLY";
+box.style.color = "#ff3131";
+}
+else{
+box.innerText = "❌ Failed";
+}
+
+}catch(err){
+box.innerText = "❌ Server Error";
+}
+}
+
+/* FETCH SENSOR DATA */
+async function fetchData(){
+try{
+
+const res = await fetch(API_URL);
+const d = await res.json();
+
+/* VALUES */
+document.getElementById("hr").innerText = d.heart_rate || "-";
+document.getElementById("hrv").innerText = d.hrv || "-";
+document.getElementById("spo2").innerText = d.spo2 || "-";
+document.getElementById("bloodFlow").innerText =
+d.blood_flow?.blood_flow_index || "-";
+
+document.getElementById("steps").innerText = d.steps || 0;
+
+document.getElementById("temp").innerText =
+(d.temperature || 36.5) + " °C";
+
+document.getElementById("microTremor").innerText =
+d.micro_tremor || "-";
+
+document.getElementById("calories").innerText =
+d.calories_burned || "-";
+
+document.getElementById("hydration").innerText =
+d.hydration || "-";
+
+document.getElementById("stress").innerText =
+typeof d.stress_score === "object"
+? d.stress_score.label
+: d.stress_score || "-";
+
+/* TEMP BAR */
+let t = d.temperature || 36.5;
+let w = 50;
+
+if(t < 36.5) w = 30;
+else if(t < 37.5) w = 55;
+else if(t < 38.5) w = 75;
+else w = 95;
+
+document.getElementById("tempBar").style.width = w + "%";
+
+/* ALERTS */
+let alerts = [];
+
+/* Heart Rate */
+if (d.heart_rate > 110)
+alerts.push("⚠ High Heart Rate");
+
+/* SpO2 */
+if (d.spo2 < 94)
+alerts.push("⚠ Low SpO2");
+
+/* Temperature */
+if (t > 37.5)
+alerts.push("⚠ Fever Detected");
+
+/* HIGH STRESS CHECK */
+let stressValue = d.stress_score;
+
+if (typeof stressValue === "object" && stressValue !== null) {
+stressValue = stressValue.label;
+}
+
+if (
+stressValue == "High" ||
+stressValue == 2 ||
+String(stressValue).toLowerCase().includes("high")
+) {
+alerts.push("⚠ High Stress Detected");
+}
+
+/* SOS */
+if (d.sos == 1)
+alerts.push("🚨 SOS ALERT TRIGGERED");
+
+/* Buzzer */
+if (d.buzzer_status == 1)
+alerts.push("🔔 Emergency Buzzer Active");
+
+/* Final Alert Display */
+document.getElementById("alertsBox").innerHTML =
+alerts.length ? alerts.join("<br>") : "✅ All Good";
+
+/* PULSE GRAPH */
+if(d.ir_signal && d.ir_signal.length > 0){
+pulseChart.data.datasets[0].data =
+d.ir_signal.slice(-20);
+pulseChart.update();
+}
+
+/* STEPS CONTINUOUS GRAPH */
+let time = new Date().toLocaleTimeString();
+
+stepsChart.data.labels.push(time);
+stepsChart.data.datasets[0].data.push(d.steps || 0);
+
+if(stepsChart.data.labels.length > 15){
+stepsChart.data.labels.shift();
+stepsChart.data.datasets[0].data.shift();
+}
+
+stepsChart.update();
+
+/* AUTO SHOW DEVICE BUTTON SOS */
+if(d.sos == 1){
+document.getElementById("sosStatus").innerText =
+"🚨 SOS SENT FROM DEVICE";
+document.getElementById("sosStatus").style.color =
+"#ff3131";
+}
+
+}catch(err){
+console.log("Waiting for data...");
+}
+}
+
+fetchData();
+setInterval(fetchData,1000);
+
+</script>
+
+</body>
+</html>
